@@ -1,10 +1,9 @@
-(function() {
-  /**
-   * Image utility.
-   * @static
-   * @constructor
-   */
-  tracking.Image = {};
+/**
+ * Image utility.
+ * @static
+ * @constructor
+ */
+export default class Image {
 
   /**
    * Computes gaussian blur. Adapted from
@@ -15,13 +14,13 @@
    * @param {number} diameter Gaussian blur diameter, must be greater than 1.
    * @return {array} The edge pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.blur = function(pixels, width, height, diameter) {
-    diameter = Math.abs(diameter);
-    if (diameter <= 1) {
+  static blur ( pixels, width, height, diameter ) {
+    const _diameter = Math.abs(diameter);
+    if (_diameter <= 1) {
       throw new Error('Diameter should be greater than 1.');
     }
-    var radius = diameter / 2;
-    var len = Math.ceil(diameter) + (1 - (Math.ceil(diameter) % 2));
+    var radius = _diameter / 2;
+    var len = Math.ceil( _diameter ) + (1 - (Math.ceil( _diameter ) % 2));
     var weights = new Float32Array(len);
     var rho = (radius + 0.5) / 3;
     var rhoSq = rho * rho;
@@ -39,7 +38,7 @@
       weights[j] /= wsum;
     }
     return this.separableConvolve(pixels, width, height, weights, weights, false);
-  };
+  }
 
   /**
    * Computes the integral image for summed, squared, rotated and sobel pixels.
@@ -61,13 +60,13 @@
    *     specified compute sobel filtering will be skipped.
    * @static
    */
-  tracking.Image.computeIntegralImage = function(pixels, width, height, opt_integralImage, opt_integralImageSquare, opt_tiltedIntegralImage, opt_integralImageSobel) {
+  static computeIntegralImage ( pixels, width, height, opt_integralImage, opt_integralImageSquare, opt_tiltedIntegralImage, opt_integralImageSobel ) {
     if (arguments.length < 4) {
       throw new Error('You should specify at least one output array in the order: sum, square, tilted, sobel.');
     }
     var pixelsSobel;
     if (opt_integralImageSobel) {
-      pixelsSobel = tracking.Image.sobel(pixels, width, height);
+      pixelsSobel = this.sobel(pixels, width, height);
     }
     for (var i = 0; i < height; i++) {
       for (var j = 0; j < width; j++) {
@@ -89,7 +88,7 @@
         }
       }
     }
-  };
+  }
 
   /**
    * Helper method to compute the rotated summed area table (RSAT) by the
@@ -107,10 +106,10 @@
    * @static
    * @private
    */
-  tracking.Image.computePixelValueRSAT_ = function(RSAT, width, i, j, pixel, pixelAbove) {
+  static computePixelValueRSAT_ ( RSAT, width, i, j, pixel, pixelAbove ) {
     var w = i * width + j;
     RSAT[w] = (RSAT[w - width - 1] || 0) + (RSAT[w - width + 1] || 0) - (RSAT[w - width - width] || 0) + pixel + pixelAbove;
-  };
+  }
 
   /**
    * Helper method to compute the summed area table (SAT) by the formula:
@@ -127,10 +126,10 @@
    * @static
    * @private
    */
-  tracking.Image.computePixelValueSAT_ = function(SAT, width, i, j, pixel) {
+  static computePixelValueSAT_ ( SAT, width, i, j, pixel ) {
     var w = i * width + j;
     SAT[w] = (SAT[w - width] || 0) + (SAT[w - 1] || 0) + pixel - (SAT[w - width - 1] || 0);
-  };
+  }
 
   /**
    * Converts a color from a colorspace based on an RGB color model to a
@@ -147,7 +146,7 @@
    *  is true and [p1, p2, p3, ...] if fillRGBA is false).
    * @static
    */
-  tracking.Image.grayscale = function(pixels, width, height, fillRGBA) {
+  static grayscale ( pixels, width, height, fillRGBA ) {
     var gray = new Uint8ClampedArray(fillRGBA ? pixels.length : pixels.length >> 2);
     var p = 0;
     var w = 0;
@@ -166,7 +165,7 @@
       }
     }
     return gray;
-  };
+  }
 
   /**
    * Fast horizontal separable convolution. A point spread function (PSF) is
@@ -183,7 +182,7 @@
    * @param {number} opaque
    * @return {array} The convoluted pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.horizontalConvolve = function(pixels, width, height, weightsVector, opaque) {
+  static horizontalConvolve ( pixels, width, height, weightsVector, opaque ) {
     var side = weightsVector.length;
     var halfSide = Math.floor(side / 2);
     var output = new Float32Array(width * height * 4);
@@ -215,7 +214,7 @@
       }
     }
     return output;
-  };
+  }
 
   /**
    * Fast vertical separable convolution. A point spread function (PSF) is
@@ -232,7 +231,7 @@
    * @param {number} opaque
    * @return {array} The convoluted pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.verticalConvolve = function(pixels, width, height, weightsVector, opaque) {
+  static verticalConvolve ( pixels, width, height, weightsVector, opaque ) {
     var side = weightsVector.length;
     var halfSide = Math.floor(side / 2);
     var output = new Float32Array(width * height * 4);
@@ -264,7 +263,7 @@
       }
     }
     return output;
-  };
+  }
 
   /**
    * Fast separable convolution. A point spread function (PSF) is said to be
@@ -282,10 +281,10 @@
    * @param {number} opaque
    * @return {array} The convoluted pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.separableConvolve = function(pixels, width, height, horizWeights, vertWeights, opaque) {
+  static separableConvolve ( pixels, width, height, horizWeights, vertWeights, opaque ) {
     var vertical = this.verticalConvolve(pixels, width, height, vertWeights, opaque);
     return this.horizontalConvolve(vertical, width, height, horizWeights, opaque);
-  };
+  }
 
   /**
    * Compute image edges using Sobel operator. Computes the vertical and
@@ -299,7 +298,7 @@
    * @param {number} height The image height.
    * @return {array} The edge pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.sobel = function(pixels, width, height) {
+  static sobel ( pixels, width, height ) {
     pixels = this.grayscale(pixels, width, height, true);
     var output = new Float32Array(width * height * 4);
     var sobelSignVector = new Float32Array([-1, 0, 1]);
@@ -318,6 +317,5 @@
     }
 
     return output;
-  };
-
-}());
+  }
+}
