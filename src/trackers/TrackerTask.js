@@ -1,75 +1,76 @@
-(function() {
-  /**
-   * TrackerTask utility.
-   * @constructor
-   * @extends {tracking.EventEmitter}
-   */
-  tracking.TrackerTask = function(tracker) {
-    tracking.TrackerTask.base(this, 'constructor');
+import EventEmitter from '../utils/EventEmitter';
+
+/**
+ * TrackerTask utility.
+ * @constructor
+ * @extends {tracking.EventEmitter}
+ */
+export default class TrackerTask extends EventEmitter {
+  constructor(tracker) {
+    super();
+
+    /**
+     * Holds the tracker instance managed by this task.
+     * @type {tracking.Tracker}
+     * @private
+     */
+    this.tracker_ = null;
+
+    /**
+     * Holds if the tracker task is in running.
+     * @type {boolean}
+     * @private
+     */
+    this.running_ = false;
 
     if (!tracker) {
       throw new Error('Tracker instance not specified.');
     }
 
     this.setTracker(tracker);
-  };
+  }
 
-  tracking.inherits(tracking.TrackerTask, tracking.EventEmitter);
-
-  /**
-   * Holds the tracker instance managed by this task.
-   * @type {tracking.Tracker}
-   * @private
-   */
-  tracking.TrackerTask.prototype.tracker_ = null;
-
-  /**
-   * Holds if the tracker task is in running.
-   * @type {boolean}
-   * @private
-   */
-  tracking.TrackerTask.prototype.running_ = false;
 
   /**
    * Gets the tracker instance managed by this task.
    * @return {tracking.Tracker}
    */
-  tracking.TrackerTask.prototype.getTracker = function() {
+  getTracker () {
     return this.tracker_;
-  };
+  }
 
   /**
    * Returns true if the tracker task is in running, false otherwise.
    * @return {boolean}
    * @private
    */
-  tracking.TrackerTask.prototype.inRunning = function() {
+  inRunning () {
     return this.running_;
-  };
+  }
 
   /**
    * Sets if the tracker task is in running.
    * @param {boolean} running
    * @private
    */
-  tracking.TrackerTask.prototype.setRunning = function(running) {
+  setRunning (running) {
     this.running_ = running;
-  };
+  }
 
   /**
    * Sets the tracker instance managed by this task.
    * @return {tracking.Tracker}
    */
-  tracking.TrackerTask.prototype.setTracker = function(tracker) {
+  setTracker (tracker) {
     this.tracker_ = tracker;
-  };
+  }
 
   /**
    * Emits a `run` event on the tracker task for the implementers to run any
    * child action, e.g. `requestAnimationFrame`.
    * @return {object} Returns itself, so calls can be chained.
    */
-  tracking.TrackerTask.prototype.run = function() {
+  run () {
     var self = this;
 
     if (this.inRunning()) {
@@ -83,14 +84,14 @@
     this.tracker_.on('track', this.reemitTrackEvent_);
     this.emit('run');
     return this;
-  };
+  }
 
   /**
    * Emits a `stop` event on the tracker task for the implementers to stop any
    * child action being done, e.g. `requestAnimationFrame`.
    * @return {object} Returns itself, so calls can be chained.
    */
-  tracking.TrackerTask.prototype.stop = function() {
+  stop () {
     if (!this.inRunning()) {
       return;
     }
@@ -99,5 +100,6 @@
     this.emit('stop');
     this.tracker_.removeListener('track', this.reemitTrackEvent_);
     return this;
-  };
-}());
+  }
+}
+

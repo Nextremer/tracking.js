@@ -1,16 +1,16 @@
-(function() {
-  /**
-   * EventEmitter utility.
-   * @constructor
-   */
-  tracking.EventEmitter = function() {};
-
+/**
+ * EventEmitter utility.
+ * @constructor
+ */
+export default class EventEmitter {
   /**
    * Holds event listeners scoped by event type.
    * @type {object}
    * @private
    */
-  tracking.EventEmitter.prototype.events_ = null;
+  constructor() {
+    this.events_ = null;
+  }
 
   /**
    * Adds a listener to the end of the listeners array for the specified event.
@@ -18,7 +18,7 @@
    * @param {function} listener
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.addListener = function(event, listener) {
+  addListener (event, listener) {
     if (typeof listener !== 'function') {
       throw new TypeError('Listener must be a function');
     }
@@ -35,16 +35,16 @@
     this.events_[event].push(listener);
 
     return this;
-  };
+  }
 
   /**
    * Returns an array of listeners for the specified event.
    * @param {string} event
    * @return {array} Array of listeners.
    */
-  tracking.EventEmitter.prototype.listeners = function(event) {
+  listeners (event) {
     return this.events_ && this.events_[event];
-  };
+  }
 
   /**
    * Execute each of the listeners in order with the supplied arguments.
@@ -52,7 +52,7 @@
    * @param {*} opt_args [arg1], [arg2], [...]
    * @return {boolean} Returns true if event had listeners, false otherwise.
    */
-  tracking.EventEmitter.prototype.emit = function(event) {
+  emit (event) {
     var listeners = this.listeners(event);
     if (listeners) {
       var args = Array.prototype.slice.call(arguments, 1);
@@ -64,15 +64,11 @@
       return true;
     }
     return false;
-  };
+  }
 
-  /**
-   * Adds a listener to the end of the listeners array for the specified event.
-   * @param {string} event
-   * @param {function} listener
-   * @return {object} Returns emitter, so calls can be chained.
-   */
-  tracking.EventEmitter.prototype.on = tracking.EventEmitter.prototype.addListener;
+  on (event, listener) {
+    this.addListener( event, listener );
+  }
 
   /**
    * Adds a one time listener for the event. This listener is invoked only the
@@ -81,13 +77,13 @@
    * @param {function} listener
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.once = function(event, listener) {
+  once (event, listener) {
     var self = this;
     self.on(event, function handlerInternal() {
       self.removeListener(event, handlerInternal);
       listener.apply(this, arguments);
     });
-  };
+  }
 
   /**
    * Removes all listeners, or those of the specified event. It's not a good
@@ -96,7 +92,7 @@
    * @param {string} event
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.removeAllListeners = function(opt_event) {
+  removeAllListeners (opt_event) {
     if (!this.events_) {
       return this;
     }
@@ -106,7 +102,7 @@
       delete this.events_;
     }
     return this;
-  };
+  }
 
   /**
    * Remove a listener from the listener array for the specified event.
@@ -115,7 +111,7 @@
    * @param {function} listener
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.removeListener = function(event, listener) {
+  removeListener (event, listener) {
     if (typeof listener !== 'function') {
       throw new TypeError('Listener must be a function');
     }
@@ -133,7 +129,7 @@
     }
 
     return this;
-  };
+  }
 
   /**
    * By default EventEmitters will print a warning if more than 10 listeners
@@ -142,8 +138,7 @@
    * This function allows that to be increased. Set to zero for unlimited.
    * @param {number} n The maximum number of listeners.
    */
-  tracking.EventEmitter.prototype.setMaxListeners = function() {
+  setMaxListeners () {
     throw new Error('Not implemented');
-  };
-
-}());
+  }
+}

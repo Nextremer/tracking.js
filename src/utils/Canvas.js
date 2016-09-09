@@ -1,11 +1,9 @@
-(function() {
-  /**
-   * Canvas utility.
-   * @static
-   * @constructor
-   */
-  tracking.Canvas = {};
-
+/**
+ * Canvas utility.
+ * @static
+ * @constructor
+ */
+export default class Canvas {
   /**
    * Loads an image source into the canvas.
    * @param {HTMLCanvasElement} canvas The canvas dom element.
@@ -18,7 +16,7 @@
    *     into the canvas.
    * @static
    */
-  tracking.Canvas.loadImage = function(canvas, src, x, y, width, height, opt_callback) {
+  static loadImage (canvas, src, x, y, width, height, opt_callback) {
     var instance = this;
     var img = new window.Image();
     img.crossOrigin = '*';
@@ -33,5 +31,6 @@
       img = null;
     };
     img.src = src;
-  };
-}());
+  }
+}
+

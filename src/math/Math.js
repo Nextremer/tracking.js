@@ -1,10 +1,9 @@
-(function() {
-  /**
-   * Math utility.
-   * @static
-   * @constructor
-   */
-  tracking.Math = {};
+/**
+ * Math utility.
+ * @static
+ * @constructor
+ */
+export class Math {
 
   /**
    * Euclidean distance between two points P(x0, y0) and P(x1, y1).
@@ -14,12 +13,12 @@
    * @param {number} y1 Vertical coordinate of P1.
    * @return {number} The euclidean distance.
    */
-  tracking.Math.distance = function(x0, y0, x1, y1) {
+  static distance (x0, y0, x1, y1) {
     var dx = x1 - x0;
     var dy = y1 - y0;
 
     return Math.sqrt(dx * dx + dy * dy);
-  };
+  }
 
   /**
    * Calculates the Hamming weight of a string, which is the number of symbols that are
@@ -39,12 +38,12 @@
    * @param {number} i Number that holds the binary string to extract the hamming weight.
    * @return {number} The hamming weight.
    */
-  tracking.Math.hammingWeight = function(i) {
+  static hammingWeight (i) {
     i = i - ((i >> 1) & 0x55555555);
     i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
 
     return ((i + (i >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
-  };
+  }
 
   /**
    * Generates a random number between [a, b] interval.
@@ -52,9 +51,9 @@
    * @param {number} b
    * @return {number}
    */
-  tracking.Math.uniformRandom = function(a, b) {
+  static uniformRandom (a, b) {
     return a + Math.random() * (b - a);
-  };
+  }
 
   /**
    * Tests if a rectangle intersects with another.
@@ -75,8 +74,8 @@
    * @param {number} y3 Vertical coordinate of P3.
    * @return {boolean}
    */
-  tracking.Math.intersectRect = function(x0, y0, x1, y1, x2, y2, x3, y3) {
+  static intersectRect (x0, y0, x1, y1, x2, y2, x3, y3) {
     return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
-  };
+  }
+}
 
-}());

@@ -1,28 +1,40 @@
-(function() {
-  /**
-   * ViolaJones utility.
-   * @static
-   * @constructor
-   */
-  tracking.ViolaJones = {};
+import { eye } from './training/haar/eye';
+import { face } from './training/haar/face';
+import { mouth } from './training/haar/mouth';
 
-  /**
-   * Holds the minimum area of intersection that defines when a rectangle is
-   * from the same group. Often when a face is matched multiple rectangles are
-   * classified as possible rectangles to represent the face, when they
-   * intersects they are grouped as one face.
-   * @type {number}
-   * @default 0.5
-   * @static
-   */
-  tracking.ViolaJones.REGIONS_OVERLAP = 0.5;
+import Image from '../utils/Image';
+import DisjointSet from '../utils/DisjointSet';
+import { Math as _Math } from '../math/Math';
 
-  /**
-   * Holds the HAAR cascade classifiers converted from OpenCV training.
-   * @type {array}
-   * @static
-   */
-  tracking.ViolaJones.classifiers = {};
+/**
+ * ViolaJones utility.
+ * @static
+ * @constructor
+ */
+export default class ViolaJones {
+  constructor() {
+    /**
+     * Holds the minimum area of intersection that defines when a rectangle is
+     * from the same group. Often when a face is matched multiple rectangles are
+     * classified as possible rectangles to represent the face, when they
+     * intersects they are grouped as one face.
+     * @type {number}
+     * @default 0.5
+     * @static
+     */
+    this.REGIONS_OVERLAP = 0.5;
+
+    /**
+     * Holds the HAAR cascade classifiers converted from OpenCV training.
+     * @type {array}
+     * @static
+     */
+    this._classifiers = { eye, face, mouth };
+  }
+
+  get classifiers() {
+    return this._classifiers;
+  }
 
   /**
    * Detects through the HAAR cascade data rectangles matches.
@@ -41,7 +53,7 @@
    * @return {array} Found rectangles.
    * @static
    */
-  tracking.ViolaJones.detect = function(pixels, width, height, initialScale, scaleFactor, stepSize, edgesDensity, data) {
+  detect (pixels, width, height, initialScale, scaleFactor, stepSize, edgesDensity, data) {
     var total = 0;
     var rects = [];
     var integralImage = new Int32Array(width * height);
@@ -53,7 +65,7 @@
       integralImageSobel = new Int32Array(width * height);
     }
 
-    tracking.Image.computeIntegralImage(pixels, width, height, integralImage, integralImageSquare, tiltedIntegralImage, integralImageSobel);
+    Image.computeIntegralImage(pixels, width, height, integralImage, integralImageSquare, tiltedIntegralImage, integralImageSobel);
 
     var minWidth = data[0];
     var minHeight = data[1];
@@ -88,7 +100,7 @@
       blockHeight = (scale * minHeight) | 0;
     }
     return this.mergeRectangles_(rects);
-  };
+  }
 
   /**
    * Fast check to test whether the edges density inside the block is greater
@@ -105,7 +117,7 @@
    * @static
    * @protected
    */
-  tracking.ViolaJones.isTriviallyExcluded = function(edgesDensity, integralImageSobel, i, j, width, blockWidth, blockHeight) {
+  isTriviallyExcluded (edgesDensity, integralImageSobel, i, j, width, blockWidth, blockHeight) {
     var wbA = i * width + j;
     var wbB = wbA + blockWidth;
     var wbD = wbA + blockHeight * width;
@@ -115,7 +127,7 @@
       return true;
     }
     return false;
-  };
+  }
 
   /**
    * Evaluates if the block size on i,j position is a valid HAAR cascade
@@ -132,7 +144,7 @@
    * @private
    * @static
    */
-  tracking.ViolaJones.evalStages_ = function(data, integralImage, integralImageSquare, tiltedIntegralImage, i, j, width, blockWidth, blockHeight, scale) {
+  evalStages_ (data, integralImage, integralImageSquare, tiltedIntegralImage, i, j, width, blockWidth, blockHeight, scale) {
     var inverseArea = 1.0 / (blockWidth * blockHeight);
     var wbA = i * width + j;
     var wbB = wbA + blockWidth;
@@ -208,7 +220,7 @@
       }
     }
     return true;
-  };
+  }
 
   /**
    * Postprocess the detected sub-windows in order to combine overlapping
@@ -218,14 +230,14 @@
    * @private
    * @static
    */
-  tracking.ViolaJones.mergeRectangles_ = function(rects) {
-    var disjointSet = new tracking.DisjointSet(rects.length);
+  mergeRectangles_ (rects) {
+    var disjointSet = new DisjointSet(rects.length);
 
     for (var i = 0; i < rects.length; i++) {
       var r1 = rects[i];
       for (var j = 0; j < rects.length; j++) {
         var r2 = rects[j];
-        if (tracking.Math.intersectRect(r1.x, r1.y, r1.x + r1.width, r1.y + r1.height, r2.x, r2.y, r2.x + r2.width, r2.y + r2.height)) {
+        if (_Math.intersectRect(r1.x, r1.y, r1.x + r1.width, r1.y + r1.height, r2.x, r2.y, r2.x + r2.width, r2.y + r2.height)) {
           var x1 = Math.max(r1.x, r2.x);
           var y1 = Math.max(r1.y, r2.y);
           var x2 = Math.min(r1.x + r1.width, r2.x + r2.width);
@@ -236,8 +248,8 @@
 
           if ((overlap / (area1 * (area1 / area2)) >= this.REGIONS_OVERLAP) &&
             (overlap / (area2 * (area1 / area2)) >= this.REGIONS_OVERLAP)) {
-            disjointSet.union(i, j);
-          }
+              disjointSet.union(i, j);
+            }
         }
       }
     }
@@ -275,6 +287,6 @@
     });
 
     return result;
-  };
+  }
+}
 
-}());
